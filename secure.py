@@ -10,7 +10,7 @@ from playwright_stealth import Stealth
 # Environment variable: RAW_URL_API must be set (e.g., a plain text URL
 # that returns one raw URL per line).
 # ----------------------------------------------------------------------
-URL_API = os.environ.get("RAW_API_URL")
+URL_API = os.environ.get("RAW_URL_API")
 if not URL_API:
     raise EnvironmentError("Missing environment variable: RAW_URL_API")
 
