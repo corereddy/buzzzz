@@ -2,7 +2,7 @@ name: Scheduled Python Run
 
 on:
   schedule:
-    - cron: '*/27 * * * *'  
+    - cron: '*/20 * * * *'  
   workflow_dispatch: # Allows you to also trigger the script manually from GitHub
 
 jobs:
