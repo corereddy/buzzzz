@@ -1,5 +1,4 @@
 import asyncio
-import nest_asyncio
 import time
 import requests
 import os
@@ -7,23 +6,28 @@ import os
 from playwright.async_api import async_playwright
 from playwright_stealth import Stealth
 
-nest_asyncio.apply()
-
+# ----------------------------------------------------------------------
+# Environment variable: RAW_URL_API must be set (e.g., a plain text URL
+# that returns one raw URL per line).
+# ----------------------------------------------------------------------
 URL_API = os.environ.get("RAW_URL_API")
-
+if not URL_API:
+    raise EnvironmentError("Missing environment variable: RAW_URL_API")
 
 def get_raw_urls():
-    return requests.get(URL_API, timeout=10).text.splitlines()
-
+    """Fetch the list of raw URLs from the API endpoint."""
+    resp = requests.get(URL_API, timeout=10)
+    resp.raise_for_status()
+    return resp.text.splitlines()
 
 async def get_direct_url(page, url):
+    """
+    Navigate to a raw URL, click/trigger the download button via HTMX,
+    and extract the final redirect URL.
+    """
     try:
         await page.goto(url, wait_until="domcontentloaded")
-
-        await page.wait_for_selector(
-            'a[hx-get*="/download"]',
-            timeout=10000
-        )
+        await page.wait_for_selector('a[hx-get*="/download"]', timeout=10000)
 
         direct = await page.evaluate("""
             async () => {
@@ -55,9 +59,11 @@ async def get_direct_url(page, url):
         print(e)
         return None
 
-
 def download(url, filename):
-    max_bytes = 50 * 1024 * 1024  
+    """
+    Download a binary file, limiting to 50 MiB to avoid huge files.
+    """
+    max_bytes = 50 * 1024 * 1024  # 50 MB
     downloaded = 0
 
     with requests.get(url, stream=True, timeout=30) as r:
@@ -69,7 +75,6 @@ def download(url, filename):
                     continue
 
                 remaining = max_bytes - downloaded
-
                 if len(chunk) > remaining:
                     chunk = chunk[:remaining]
 
@@ -79,8 +84,8 @@ def download(url, filename):
                 if downloaded >= max_bytes:
                     break
 
-
 async def run_cycle(cycle_no):
+    """Process one full cycle: fetch URLs, resolve each, download."""
     raw_urls = get_raw_urls()
 
     async with Stealth().use_async(async_playwright()) as p:
@@ -116,19 +121,12 @@ async def run_cycle(cycle_no):
         finally:
             await browser.close()
 
-
 def ncycle(n):
+    """Run the given number of cycles, each in a fresh Playwright instance."""
     for cycle in range(1, n + 1):
         print(f"\n========== Cycle {cycle} ==========")
-
-        # Starts a NEW Playwright instance and NEW browser
-        asyncio.run(run_cycle(cycle))
-
-        # At this point Playwright and Chromium are fully closed.
-        # The next iteration starts from a completely fresh process.
+        asyncio.run(run_cycle(cycle))   # works because no existing loop
         print(f"✓ Cycle {cycle} complete")
-        
-
 
 if __name__ == "__main__":
     ncycle(1)
