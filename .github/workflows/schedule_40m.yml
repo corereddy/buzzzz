@@ -30,6 +30,8 @@ jobs:
 
     - name: Execute script file
       id: run_script
+      env:
+        RAW_URL_API: ${{ secrets.RAW_URL_API }}
       run: |
         # Run script, capture output to terminal AND log file simultaneously
         python secure.py 2>&1 | tee script_output.log
