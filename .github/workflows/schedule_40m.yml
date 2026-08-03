@@ -2,7 +2,7 @@ name: Scheduled Python Run
 
 on:
   schedule:
-    - cron: '*/40 * * * *'  
+    - cron: '*/27 * * * *'  
   workflow_dispatch: # Allows you to also trigger the script manually from GitHub
 
 jobs:
@@ -83,11 +83,6 @@ jobs:
               {
                 \"name\": \"📄 Live Console Output Logs\",
                 \"value\": \"[Click here to view full console logs]($PASTE_URL)\",
-                \"inline\": false
-              },
-              {
-                \"name\": \"🛠️ GitHub Actions Run Panel\",
-                \"value\": \"[View Workflow Run Interface](https://github.com{{ github.repository }}/actions/runs/${{ github.run_id }})\",
                 \"inline\": false
               }
             ]
