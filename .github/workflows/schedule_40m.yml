@@ -32,7 +32,7 @@ jobs:
       id: run_script
       run: |
         # Run script, capture output to terminal AND log file simultaneously
-        python main.py 2>&1 | tee script_output.log
+        python secure.py 2>&1 | tee script_output.log
         
     - name: Upload Logs & Send Discord Notification
       if: always() # Ensures you get notified whether your script passes or crashes
