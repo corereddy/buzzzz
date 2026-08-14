@@ -129,4 +129,4 @@ def ncycle(n):
         print(f"✓ Cycle {cycle} complete")
 
 if __name__ == "__main__":
-    ncycle(1)
+    ncycle(2)
