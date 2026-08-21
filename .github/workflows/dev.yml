@@ -1,23 +1,40 @@
 name: Scheduled Python Run [DEV]
 
 on:  
-  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+  workflow_dispatch: # Allows you to also trigger the script manually from GitHub
 
 jobs:
   run-periodic-task:
     runs-on: ubuntu-latest
-    container:
-      # Official Microsoft container with Python and Playwright browser binaries pre-installed
-      image: mcr.microsoft.com/playwright/python:v1.49.0-noble
 
     steps:
     - name: Checkout repository code
       uses: actions/checkout@v4
 
+    - name: Configure Python environment
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Cache Playwright Browsers
+      uses: actions/cache@v4
+      id: playwright-cache
+      with:
+        path: ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-playwright-
+
     - name: Install required packages
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Install Playwright Chromium & Dependencies
+      if: steps.playwright-cache.outputs.cache-hit != 'true'
+      run: |
+        python -m playwright install chromium
 
     - name: Execute script file
       id: run_script
@@ -26,7 +43,7 @@ jobs:
       run: |
         # Run script, capture output to terminal AND log file simultaneously
         python secure.py 2>&1 | tee script_output.log
-
+        
     - name: Upload Logs & Send Discord Notification
       if: always() # Ensures you get notified whether your script passes or crashes
       env:
@@ -54,7 +71,7 @@ jobs:
         curl -H "Content-Type: application/json" \
         -X POST \
         -d "{
-          \"username\": \"[DEMO]\",
+          \"username\": \"GitHub Automation\",
           \"avatar_url\": \"https://githubassets.com\",
           \"embeds\": [{
             \"title\": \"$STATUS_TITLE\",
