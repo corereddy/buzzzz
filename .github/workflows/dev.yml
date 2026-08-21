@@ -1,4 +1,4 @@
-name: Scheduled Python Run
+name: Scheduled Python Run [DEV]
 
 on:  
   workflow_dispatch: # Allows manual trigger from GitHub Actions tab
