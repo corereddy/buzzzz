@@ -61,8 +61,8 @@ jobs:
         curl -H "Content-Type: application/json" \
         -X POST \
         -d "{
-          \"username\": \"GitHub Automation\",
-          \"avatar_url\": \"https://githubassets.com\",
+          \"username\": \"Buzz Max\",
+          \"avatar_url\": \"https://buzzheavier.com/favicon.ico\",
           \"embeds\": [{
             \"title\": \"$STATUS_TITLE\",
             \"description\": \"$STATUS_DESC\",
